@@ -1,7 +1,7 @@
 package com.github.youjiyun1123.youregexinterpreter.core.interpreter
 
 import com.github.youjiyun1123.youregexinterpreter.core.model.*
-import com.github.youjiyun1123.youregexinterpreter.core.parser.RegexParser
+import com.github.youjiyun1123.youregexinterpreter.core.parser.RegexParserFacade
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -12,13 +12,11 @@ class NaturalLanguageInterpreterTest {
     private val interpreter = NaturalLanguageInterpreter()
 
     private fun interpret(pattern: String): String {
-        val parser = RegexParser(pattern)
-        val result = parser.parse()
-        return when (result) {
-            is com.github.youjiyun1123.youregexinterpreter.core.parser.ParseResult.Success -> 
-                interpreter.interpret(result.root)
-            is com.github.youjiyun1123.youregexinterpreter.core.parser.ParseResult.Failure ->
-                "Error: ${result.error.message}"
+        val result = RegexParserFacade.parse(pattern)
+        return if (result.isSuccess && result.syntaxTree != null) {
+            interpreter.interpret(result.syntaxTree)
+        } else {
+            "Error: ${result.errors}"
         }
     }
 
