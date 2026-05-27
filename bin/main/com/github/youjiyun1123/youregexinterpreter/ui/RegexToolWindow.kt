@@ -1,13 +1,17 @@
 package com.github.youjiyun1123.youregexinterpreter.ui
 
 import com.github.youjiyun1123.youregexinterpreter.core.model.RegexFlag
-import com.github.youjiyun1123.youregexinterpreter.core.parser.EnhancedParseError
+import com.github.youjiyun1123.youregexinterpreter.core.model.RegexLanguage
 import com.github.youjiyun1123.youregexinterpreter.core.parser.SyntaxErrorDetector
+import com.github.youjiyun1123.youregexinterpreter.engine.RegexEngineRegistry
+import com.github.youjiyun1123.youregexinterpreter.template.RegexTemplate
+import com.github.youjiyun1123.youregexinterpreter.ui.component.SyntaxTreePanel
+import com.github.youjiyun1123.youregexinterpreter.ui.component.TemplateDetailPanel
+import com.github.youjiyun1123.youregexinterpreter.ui.component.TemplatePanel
 import com.github.youjiyun1123.youregexinterpreter.ui.viewmodel.RegexViewModel
 import com.github.youjiyun1123.youregexinterpreter.ui.viewmodel.ViewModelListener
 import com.github.youjiyun1123.youregexinterpreter.ui.viewmodel.ViewState
-import java.awt.BorderLayout
-import java.awt.Color
+import java.awt.*
 import javax.swing.*
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
@@ -21,28 +25,34 @@ class RegexToolWindow(
 ) {
     private val viewModel = RegexViewModel()
     
+    // Main components
     private val regexInput = JTextField(30)
     private val testInput = JTextArea(5, 30)
-    private val explanationArea = JTextArea(3, 30)
-    private val structureArea = JTextArea(5, 30)
+    private val explanationArea = JTextPane()
     private val matchResultArea = JTextArea(10, 30)
     private val errorLabel = JLabel("")
     private val errorDetailArea = JTextArea(3, 30)
     
+    // Flags
     private val checkCaseInsensitive = JCheckBox("i", false)
     private val checkMultiline = JCheckBox("m", false)
     private val checkDotAll = JCheckBox("s", false)
     private val checkUnicode = JCheckBox("u", false)
-    private val checkDetailedExplanation = JCheckBox("详细解释", false)
     
-    private val explanationScrollPane = JScrollPane()
-    private val structureScrollPane = JScrollPane()
+    // Language selector
+    private val languageCombo = JComboBox<RegexLanguage>()
+    
+    // Panels
+    private val syntaxTreePanel = SyntaxTreePanel()
+    private val templateDetailPanel = TemplateDetailPanel { template -> useTemplate(template) }
+    
+    private val viewModeTabbedPane = JTabbedPane()
     
     fun getContent(): JComponent {
         val mainPanel = JPanel(BorderLayout(10, 10))
         mainPanel.border = BorderFactory.createEmptyBorder(10, 10, 10, 10)
         
-        mainPanel.add(createRegexInputPanel(), BorderLayout.NORTH)
+        mainPanel.add(createTopPanel(), BorderLayout.NORTH)
         mainPanel.add(createCenterPanel(), BorderLayout.CENTER)
         
         viewModel.addListener(StateListener())
@@ -50,29 +60,38 @@ class RegexToolWindow(
         return mainPanel
     }
     
-    private fun createRegexInputPanel(): JPanel {
+    private fun createTopPanel(): JPanel {
         val panel = JPanel(BorderLayout(5, 5))
         
-        val inputLabel = JLabel("正则表达式:")
-        inputLabel.font = inputLabel.font.deriveFont(java.awt.Font.BOLD)
-        panel.add(inputLabel, BorderLayout.NORTH)
+        // Input row
+        val inputPanel = JPanel(BorderLayout(5, 5))
         
-        val inputRow = JPanel(BorderLayout(5, 5))
-        inputRow.add(regexInput, BorderLayout.CENTER)
+        // Regex input
+        val regexPanel = JPanel(BorderLayout(5, 5))
+        regexPanel.add(JLabel("正则表达式:"), BorderLayout.NORTH)
+        regexPanel.add(regexInput, BorderLayout.CENTER)
+        inputPanel.add(regexPanel, BorderLayout.NORTH)
         
-        val flagsPanel = JPanel()
-        flagsPanel.add(JLabel("Flags:"))
-        flagsPanel.add(checkCaseInsensitive)
-        flagsPanel.add(checkMultiline)
-        flagsPanel.add(checkDotAll)
-        flagsPanel.add(checkUnicode)
-        flagsPanel.add(Box.createHorizontalStrut(10))
-        flagsPanel.add(checkDetailedExplanation)
-        inputRow.add(flagsPanel, BorderLayout.EAST)
+        // Options row
+        val optionsPanel = JPanel(FlowLayout(FlowLayout.LEFT, 5, 5))
         
-        panel.add(inputRow, BorderLayout.CENTER)
+        optionsPanel.add(JLabel("语言:"))
+        RegexEngineRegistry.getAvailableLanguages().forEach { lang ->
+            languageCombo.addItem(lang)
+        }
+        languageCombo.selectedItem = RegexLanguage.JAVA
+        languageCombo.addActionListener { onLanguageChanged() }
+        optionsPanel.add(languageCombo)
         
-        // 错误提示区域
+        optionsPanel.add(JLabel(" Flags:"))
+        optionsPanel.add(checkCaseInsensitive)
+        optionsPanel.add(checkMultiline)
+        optionsPanel.add(checkDotAll)
+        optionsPanel.add(checkUnicode)
+        
+        inputPanel.add(optionsPanel, BorderLayout.CENTER)
+        
+        // Error area
         val errorPanel = JPanel(BorderLayout())
         errorLabel.foreground = Color.RED
         errorLabel.font = errorLabel.font.deriveFont(java.awt.Font.BOLD)
@@ -84,9 +103,9 @@ class RegexToolWindow(
         errorDetailArea.font = errorDetailArea.font.deriveFont(11f)
         errorPanel.add(JScrollPane(errorDetailArea), BorderLayout.CENTER)
         
-        panel.add(errorPanel, BorderLayout.SOUTH)
+        inputPanel.add(errorPanel, BorderLayout.SOUTH)
         
-        // 监听器
+        // Listeners
         regexInput.document.addDocumentListener(object : DocumentListener {
             override fun changedUpdate(e: DocumentEvent?) = onPatternChanged()
             override fun insertUpdate(e: DocumentEvent?) = onPatternChanged()
@@ -97,55 +116,62 @@ class RegexToolWindow(
         checkMultiline.addActionListener { onFlagsChanged() }
         checkDotAll.addActionListener { onFlagsChanged() }
         checkUnicode.addActionListener { onFlagsChanged() }
-        checkDetailedExplanation.addActionListener { 
-            viewModel.toggleDetailedExplanation()
-            viewModel.forceUpdate()
-        }
         
-        return panel
+        return inputPanel
     }
     
     private fun createCenterPanel(): JPanel {
         val panel = JPanel(BorderLayout(10, 10))
         
-        // 测试输入
+        // Left: Test input and results
+        val leftPanel = JPanel(BorderLayout(5, 5))
+        
         val testPanel = JPanel(BorderLayout(5, 5))
         testPanel.add(JLabel("测试字符串:"), BorderLayout.NORTH)
         testInput.lineWrap = true
         testPanel.add(JScrollPane(testInput), BorderLayout.CENTER)
-        panel.add(testPanel, BorderLayout.NORTH)
+        leftPanel.add(testPanel, BorderLayout.NORTH)
         
-        // 解释和结构
-        val explanationPanel = JPanel(BorderLayout(5, 5))
-        explanationPanel.add(JLabel("解释:"), BorderLayout.NORTH)
+        // Result area with tabs
+        val resultTabbedPane = JTabbedPane()
         
+        // Explanation tab
+        val explanationScrollPane = JScrollPane()
         explanationArea.isEditable = false
-        explanationArea.background = Color(245, 245, 250)
+        explanationArea.contentType = "text/html"
         explanationScrollPane.viewport.view = explanationArea
-        explanationPanel.add(explanationScrollPane, BorderLayout.CENTER)
+        resultTabbedPane.addTab("解释", explanationScrollPane)
         
-        structureArea.isEditable = false
-        structureArea.background = Color(250, 250, 255)
-        structureArea.font = java.awt.Font("Monaco", java.awt.Font.PLAIN, 11)
-        structureScrollPane.viewport.view = structureArea
-        explanationPanel.add(structureScrollPane, BorderLayout.SOUTH)
+        // Syntax tree tab
+        resultTabbedPane.addTab("语法树", syntaxTreePanel)
         
-        // 匹配结果
-        val resultPanel = JPanel(BorderLayout(5, 5))
-        resultPanel.add(JLabel("匹配结果:"), BorderLayout.NORTH)
+        // Match results
         matchResultArea.isEditable = false
         matchResultArea.background = Color(240, 255, 240)
-        resultPanel.add(JScrollPane(matchResultArea), BorderLayout.CENTER)
+        val matchScrollPane = JScrollPane(matchResultArea)
+        resultTabbedPane.addTab("匹配结果", matchScrollPane)
         
-        // 分割面板
-        val splitPane = JSplitPane(JSplitPane.VERTICAL_SPLIT)
-        splitPane.topComponent = explanationPanel
-        splitPane.bottomComponent = resultPanel
-        splitPane.resizeWeight = 0.4
+        leftPanel.add(resultTabbedPane, BorderLayout.CENTER)
+        
+        // Right: Template panel
+        val rightPanel = JPanel(BorderLayout(5, 5))
+        rightPanel.border = BorderFactory.createTitledBorder("模板库")
+        
+        val templatePanel = TemplatePanel { template ->
+            templateDetailPanel.showTemplate(template)
+        }
+        rightPanel.add(templatePanel, BorderLayout.CENTER)
+        rightPanel.add(templateDetailPanel, BorderLayout.SOUTH)
+        
+        // Split pane
+        val splitPane = JSplitPane(JSplitPane.HORIZONTAL_SPLIT)
+        splitPane.leftComponent = leftPanel
+        splitPane.rightComponent = rightPanel
+        splitPane.resizeWeight = 0.7
         
         panel.add(splitPane, BorderLayout.CENTER)
         
-        // 监听器
+        // Test input listener
         testInput.document.addDocumentListener(object : DocumentListener {
             override fun changedUpdate(e: DocumentEvent?) = onTestInputChanged()
             override fun insertUpdate(e: DocumentEvent?) = onTestInputChanged()
@@ -157,6 +183,7 @@ class RegexToolWindow(
     
     private fun onPatternChanged() {
         viewModel.updatePattern(regexInput.text)
+        updateSyntaxTree()
     }
     
     private fun onTestInputChanged() {
@@ -172,12 +199,36 @@ class RegexToolWindow(
         viewModel.updateFlags(flags)
     }
     
+    private fun onLanguageChanged() {
+        // Language change can trigger re-validation
+        viewModel.forceUpdate()
+    }
+    
+    private fun useTemplate(template: RegexTemplate) {
+        regexInput.text = template.pattern
+        viewModel.updatePattern(template.pattern)
+    }
+    
+    private fun updateSyntaxTree() {
+        val pattern = regexInput.text
+        if (pattern.isEmpty()) {
+            syntaxTreePanel.setEmpty()
+            return
+        }
+        
+        val result = com.github.youjiyun1123.youregexinterpreter.core.parser.RegexParserFacade.parse(pattern)
+        if (result.isSuccess && result.syntaxTree != null) {
+            syntaxTreePanel.showTree(result.syntaxTree)
+        } else {
+            syntaxTreePanel.setEmpty()
+        }
+    }
+    
     private inner class StateListener : ViewModelListener {
         override fun onStateChanged(state: ViewState) {
             when (state) {
                 is ViewState.Empty -> {
                     explanationArea.text = ""
-                    structureArea.text = ""
                     matchResultArea.text = ""
                     errorLabel.text = ""
                     errorDetailArea.text = ""
@@ -187,13 +238,12 @@ class RegexToolWindow(
                     val firstError = state.errors.first()
                     errorLabel.text = "错误: ${firstError.message}"
                     
-                    val errorDetails = state.errors.joinToString("\n") { error ->
+                    val errorDetails = state.errors.joinToString("\n\n") { error ->
                         SyntaxErrorDetector.formatError(error, regexInput.text)
                     }
                     errorDetailArea.text = errorDetails
                     
                     explanationArea.text = ""
-                    structureArea.text = ""
                     matchResultArea.text = ""
                 }
                 
@@ -201,8 +251,7 @@ class RegexToolWindow(
                     errorLabel.text = ""
                     errorDetailArea.text = ""
                     
-                    explanationArea.text = state.explanation
-                    structureArea.text = state.structure
+                    explanationArea.text = "<html><body><pre>${state.explanation}</pre></body></html>"
                     
                     matchResultArea.text = if (state.matches.isEmpty()) {
                         "无匹配"
@@ -223,7 +272,6 @@ class RegexToolWindow(
                         }
                     }
                     
-                    // 显示警告
                     if (state.warnings.isNotEmpty()) {
                         errorLabel.text = "警告: ${state.warnings.first()}"
                         errorLabel.foreground = Color.ORANGE

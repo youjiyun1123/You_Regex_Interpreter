@@ -162,19 +162,3 @@ class JavaRegexEngine : RegexEngine {
         }
     }
 }
-
-/**
- * 正则引擎注册表
- */
-object RegexEngineRegistry {
-    private val engines = mutableMapOf<RegexLanguage, RegexEngine>()
-    
-    init {
-        engines[RegexLanguage.JAVA] = JavaRegexEngine()
-    }
-    
-    fun getEngine(language: RegexLanguage): RegexEngine = 
-        engines[language] ?: throw IllegalArgumentException("Unsupported: $language")
-    
-    fun getDefaultEngine(): RegexEngine = engines[RegexLanguage.JAVA]!!
-}
