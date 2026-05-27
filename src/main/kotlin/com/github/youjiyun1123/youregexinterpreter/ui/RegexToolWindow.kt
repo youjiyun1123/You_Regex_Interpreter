@@ -13,6 +13,7 @@ import com.github.youjiyun1123.youregexinterpreter.ui.viewmodel.ViewModelListene
 import com.github.youjiyun1123.youregexinterpreter.ui.viewmodel.ViewState
 import java.awt.*
 import javax.swing.*
+import javax.swing.border.Border
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 
@@ -28,6 +29,7 @@ class RegexToolWindow(
     // Main components
     private val regexInput = JTextField(30)
     private val testInput = JTextArea(5, 30)
+    private val generateButton = JButton("生成测试字符串")
     private val explanationArea = JTextPane()
     private val matchResultArea = JTextArea(10, 30)
     private val errorLabel = JLabel("")
@@ -38,6 +40,13 @@ class RegexToolWindow(
     private val checkMultiline = JCheckBox("m", false)
     private val checkDotAll = JCheckBox("s", false)
     private val checkUnicode = JCheckBox("u", false)
+
+    init {
+        checkCaseInsensitive.toolTipText = com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.flags.tip.i")
+        checkMultiline.toolTipText = com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.flags.tip.m")
+        checkDotAll.toolTipText = com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.flags.tip.s")
+        checkUnicode.toolTipText = com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.flags.tip.u")
+    }
     
     // Language selector
     private val languageCombo = JComboBox<RegexLanguage>()
@@ -68,14 +77,14 @@ class RegexToolWindow(
         
         // Regex input
         val regexPanel = JPanel(BorderLayout(5, 5))
-        regexPanel.add(JLabel("正则表达式:"), BorderLayout.NORTH)
+        regexPanel.add(JLabel(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.regex.label")), BorderLayout.NORTH)
         regexPanel.add(regexInput, BorderLayout.CENTER)
         inputPanel.add(regexPanel, BorderLayout.NORTH)
         
         // Options row
         val optionsPanel = JPanel(FlowLayout(FlowLayout.LEFT, 5, 5))
         
-        optionsPanel.add(JLabel("语言:"))
+        optionsPanel.add(JLabel(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.language.label")))
         RegexEngineRegistry.getAvailableLanguages().forEach { lang ->
             languageCombo.addItem(lang)
         }
@@ -83,11 +92,17 @@ class RegexToolWindow(
         languageCombo.addActionListener { onLanguageChanged() }
         optionsPanel.add(languageCombo)
         
-        optionsPanel.add(JLabel(" Flags:"))
+        optionsPanel.add(JLabel(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.flags.label")))
         optionsPanel.add(checkCaseInsensitive)
         optionsPanel.add(checkMultiline)
         optionsPanel.add(checkDotAll)
         optionsPanel.add(checkUnicode)
+        
+        // Generate button
+        generateButton.toolTipText = "根据当前正则表达式生成匹配的测试字符串"
+        generateButton.addActionListener { onGenerateTestString() }
+        optionsPanel.add(Box.createHorizontalStrut(20)) // Add spacing
+        optionsPanel.add(generateButton)
         
         inputPanel.add(optionsPanel, BorderLayout.CENTER)
         
@@ -127,7 +142,7 @@ class RegexToolWindow(
         val leftPanel = JPanel(BorderLayout(5, 5))
         
         val testPanel = JPanel(BorderLayout(5, 5))
-        testPanel.add(JLabel("测试字符串:"), BorderLayout.NORTH)
+        testPanel.add(JLabel(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.testString.label")), BorderLayout.NORTH)
         testInput.lineWrap = true
         testPanel.add(JScrollPane(testInput), BorderLayout.CENTER)
         leftPanel.add(testPanel, BorderLayout.NORTH)
@@ -140,22 +155,25 @@ class RegexToolWindow(
         explanationArea.isEditable = false
         explanationArea.contentType = "text/html"
         explanationScrollPane.viewport.view = explanationArea
-        resultTabbedPane.addTab("解释", explanationScrollPane)
+        resultTabbedPane.addTab(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.tab.explain"), explanationScrollPane)
         
         // Syntax tree tab
-        resultTabbedPane.addTab("语法树", syntaxTreePanel)
+        resultTabbedPane.addTab(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.tab.syntaxTree"), syntaxTreePanel)
         
         // Match results
         matchResultArea.isEditable = false
-        matchResultArea.background = Color(240, 255, 240)
+        // Use theme-aware colors for readability in both light/dark themes.
+        matchResultArea.background = com.intellij.util.ui.UIUtil.getTextFieldBackground()
+        matchResultArea.foreground = com.intellij.util.ui.UIUtil.getLabelForeground()
+        matchResultArea.caretColor = com.intellij.util.ui.UIUtil.getLabelForeground()
         val matchScrollPane = JScrollPane(matchResultArea)
-        resultTabbedPane.addTab("匹配结果", matchScrollPane)
+        resultTabbedPane.addTab(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.tab.matchResults"), matchScrollPane)
         
         leftPanel.add(resultTabbedPane, BorderLayout.CENTER)
         
         // Right: Template panel
         val rightPanel = JPanel(BorderLayout(5, 5))
-        rightPanel.border = BorderFactory.createTitledBorder("模板库")
+        rightPanel.border = BorderFactory.createTitledBorder(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.templates.title"))
         
         val templatePanel = TemplatePanel { template ->
             templateDetailPanel.showTemplate(template)
@@ -204,9 +222,39 @@ class RegexToolWindow(
         viewModel.forceUpdate()
     }
     
+    private fun onGenerateTestString() {
+        val result = viewModel.generateTestString()
+        
+        when (result) {
+            is com.github.youjiyun1123.youregexinterpreter.core.generator.GenerationResult.Success -> {
+                testInput.text = result.testString
+                viewModel.updateTestInput(result.testString)
+                JOptionPane.showMessageDialog(
+                    null,
+                    "已生成测试字符串 (${result.testString.length} 字符)",
+                    "生成成功",
+                    JOptionPane.INFORMATION_MESSAGE
+                )
+            }
+            is com.github.youjiyun1123.youregexinterpreter.core.generator.GenerationResult.Failure -> {
+                JOptionPane.showMessageDialog(
+                    null,
+                    result.message,
+                    "生成失败",
+                    JOptionPane.ERROR_MESSAGE
+                )
+            }
+        }
+    }
+    
     private fun useTemplate(template: RegexTemplate) {
-        regexInput.text = template.pattern
-        viewModel.updatePattern(template.pattern)
+        setPattern(template.pattern)
+    }
+
+    fun setPattern(pattern: String) {
+        regexInput.text = pattern
+        viewModel.updatePattern(pattern)
+        updateSyntaxTree()
     }
     
     private fun updateSyntaxTree() {
@@ -236,7 +284,7 @@ class RegexToolWindow(
                 
                 is ViewState.Error -> {
                     val firstError = state.errors.first()
-                    errorLabel.text = "错误: ${firstError.message}"
+                    errorLabel.text = com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.error.prefix", firstError.message)
                     
                     val errorDetails = state.errors.joinToString("\n\n") { error ->
                         SyntaxErrorDetector.formatError(error, regexInput.text)
@@ -254,17 +302,28 @@ class RegexToolWindow(
                     explanationArea.text = "<html><body><pre>${state.explanation}</pre></body></html>"
                     
                     matchResultArea.text = if (state.matches.isEmpty()) {
-                        "无匹配"
+                        com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.matches.none")
                     } else {
                         buildString {
-                            appendLine("找到 ${state.matches.size} 个匹配:")
+                            appendLine(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.matches.found", state.matches.size))
                             appendLine()
                             state.matches.take(1000).forEachIndexed { index, match ->
-                                appendLine("Match ${index + 1}: \"${match.value}\" (位置: ${match.range.start}-${match.range.endInclusive})")
+                                appendLine(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message(
+                                    "ui.match.item",
+                                    index + 1,
+                                    match.value,
+                                    match.range.start,
+                                    match.range.endInclusive
+                                ))
                                 if (match.groups.size > 1) {
                                     match.groups.drop(1).forEach { group ->
                                         val nameStr = if (group.name != null) " (${group.name})" else ""
-                                        appendLine("  Group ${group.index}$nameStr: \"${group.value ?: "null"}\"")
+                                        appendLine(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message(
+                                            "ui.match.group.item",
+                                            group.index,
+                                            nameStr,
+                                            group.value ?: "null"
+                                        ))
                                     }
                                 }
                                 appendLine()
@@ -273,7 +332,7 @@ class RegexToolWindow(
                     }
                     
                     if (state.warnings.isNotEmpty()) {
-                        errorLabel.text = "警告: ${state.warnings.first()}"
+                        errorLabel.text = com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.warning.prefix", state.warnings.first())
                         errorLabel.foreground = Color.ORANGE
                     } else {
                         errorLabel.foreground = Color.RED

@@ -39,7 +39,7 @@ class TemplatePanel(
     private val registry = TemplateRegistry()
     private val listModel = DefaultListModel<RegexTemplate>()
     private val templateList = JList<RegexTemplate>(listModel)
-    private val categoryCombo = JComboBox<TemplateCategory?>()
+    private val categoryCombo = JComboBox<TemplateCategory>()
     private val searchField = JTextField(20)
     
     init {
@@ -57,16 +57,17 @@ class TemplatePanel(
         panel.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
         
         val searchPanel = JPanel(java.awt.BorderLayout(5, 5))
-        searchPanel.add(JLabel("搜索:"), java.awt.BorderLayout.WEST)
+        searchPanel.add(JLabel(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.search.label")), java.awt.BorderLayout.WEST)
         searchField.addActionListener { performSearch() }
         searchPanel.add(searchField, java.awt.BorderLayout.CENTER)
         
-        categoryCombo.addItem(null)
         TemplateCategory.entries.forEach { categoryCombo.addItem(it) }
+        categoryCombo.selectedItem = TemplateCategory.IDENTITY
         categoryCombo.addActionListener { filterByCategory() }
         
         panel.add(searchPanel)
         panel.add(Box.createVerticalStrut(5))
+        panel.add(JLabel(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.filter.label")))
         panel.add(categoryCombo)
         
         return panel
@@ -94,7 +95,7 @@ class TemplatePanel(
     }
     
     private fun initData() {
-        updateList(registry.getAll())
+        filterByCategory()
     }
     
     private fun performSearch() {
@@ -108,11 +109,8 @@ class TemplatePanel(
     
     private fun filterByCategory() {
         val category = categoryCombo.selectedItem as? TemplateCategory
-        if (category == null) {
-            initData()
-        } else {
-            updateList(registry.getByCategory(category))
-        }
+        if (category == null) return
+        updateList(registry.getByCategory(category))
     }
     
     private fun updateList(templates: List<RegexTemplate>) {
@@ -131,11 +129,11 @@ class TemplateListCellRenderer : javax.swing.ListCellRenderer<RegexTemplate> {
     
     private val label = JLabel()
     private val categoryLabels = mapOf(
-        TemplateCategory.IDENTITY to "身份",
-        TemplateCategory.NETWORK to "网络",
-        TemplateCategory.TEXT to "文本",
-        TemplateCategory.SECURITY to "安全",
-        TemplateCategory.DEVELOPMENT to "开发"
+        TemplateCategory.IDENTITY to com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.short.identity"),
+        TemplateCategory.NETWORK to com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.short.network"),
+        TemplateCategory.TEXT to com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.short.text"),
+        TemplateCategory.SECURITY to com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.short.security"),
+        TemplateCategory.DEVELOPMENT to com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.short.development")
     )
     
     override fun getListCellRendererComponent(

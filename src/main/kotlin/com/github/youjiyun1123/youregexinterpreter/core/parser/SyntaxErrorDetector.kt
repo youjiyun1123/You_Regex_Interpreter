@@ -83,32 +83,54 @@ object SyntaxErrorDetector {
     }
     
     private fun detectOrphanQuantifiers(pattern: String, errors: MutableList<EnhancedParseError>) {
-        val regex = Regex("""(?<![\\d\\w])([*+?])(?![*+?])""")
-        regex.findAll(pattern).forEach { match ->
-            val pos = match.range.first
-            val prevChar = if (pos > 0) pattern[pos - 1] else '\u0000'
+        var i = 0
+        var inCharClass = false
+        
+        while (i < pattern.length) {
+            val ch = pattern[i]
             
-            // 跳过非捕获分组 (?: 等
-            if (prevChar == '(') {
-                return@forEach
+            // 处理字符类
+            if (ch == '[' && !inCharClass && (i == 0 || pattern[i - 1] != '\\')) {
+                inCharClass = true
+                i++
+                continue
+            }
+            if (ch == ']' && inCharClass && (i == 0 || pattern[i - 1] != '\\')) {
+                inCharClass = false
+                i++
+                continue
             }
             
-            // 跳过前瞻/后顾断言 (?=), (?!), (?<=), (?<!)
-            if (prevChar == '<' && pos > 1 && pattern[pos - 2] == '(') {
-                return@forEach
+            if (inCharClass) {
+                i++
+                continue
             }
             
-            // 检测孤立量词
-            if (pos == 0 || prevChar in "(|)") {
+            // 跳过转义字符
+            if (ch == '\\' && i + 1 < pattern.length) {
+                i += 2
+                continue
+            }
+            
+            // 检测量词（只在开头或分组/选择符之后）
+            if (ch in "*+?" && (i == 0 || pattern[i - 1] in "(|")) {
+                // 但要跳过前瞻/后顾断言 (?=, ?!, ?<=, ?<!
+                if (ch == '?' && i > 0 && pattern[i - 1] == '(') {
+                    i++
+                    continue
+                }
+                
                 errors.add(
                     EnhancedParseError(
-                        message = "Quantifier '${match.value}' has nothing to repeat",
-                        position = pos,
+                        message = "Quantifier '$ch' has nothing to repeat",
+                        position = i,
                         hint = "Add a character, group, or character class before the quantifier",
                         code = ErrorCode.ORPHAN_QUANTIFIER
                     )
                 )
             }
+            
+            i++
         }
         
         // 检测 {n,m} 格式错误

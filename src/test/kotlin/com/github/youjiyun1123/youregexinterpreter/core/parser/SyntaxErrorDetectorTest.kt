@@ -84,6 +84,14 @@ class SyntaxErrorDetectorTest {
             val errors = SyntaxErrorDetector.detect("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
             assertThat(errors).isEmpty()
         }
+        
+        @Test
+        @DisplayName("域名模式 - 不应报孤立量词错误")
+        fun domainPattern() {
+            val pattern = "^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
+            val errors = SyntaxErrorDetector.detect(pattern)
+            assertThat(errors).isEmpty()
+        }
     }
 
     @Nested

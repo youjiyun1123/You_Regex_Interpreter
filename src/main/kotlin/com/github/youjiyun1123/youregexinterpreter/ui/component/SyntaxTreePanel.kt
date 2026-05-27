@@ -21,7 +21,7 @@ class SyntaxTreePanel : JPanel() {
     
     private val tree = JTree()
     private val scrollPane = JScrollPane(tree)
-    private val label = javax.swing.JLabel("语法树结构")
+    private val label = javax.swing.JLabel(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.syntaxTree.title"))
     
     init {
         layout = java.awt.BorderLayout()
@@ -59,7 +59,7 @@ class SyntaxTreePanel : JPanel() {
      * 设置空状态
      */
     fun setEmpty() {
-        val emptyNode = DefaultMutableTreeNode("输入正则表达式查看语法树")
+        val emptyNode = DefaultMutableTreeNode(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.syntaxTree.empty"))
         tree.model = DefaultTreeModel(emptyNode)
     }
     

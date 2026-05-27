@@ -18,14 +18,14 @@ class TemplateDetailPanel(
     private val descriptionLabel = JLabel()
     private val patternLabel = JLabel()
     private val exampleLabel = JLabel()
-    private val useButton = JButton("使用此模板")
-    private val copyButton = JButton("复制正则")
+    private val useButton = JButton(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.use"))
+    private val copyButton = JButton(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.copy"))
     
     init {
         layout = BorderLayout(5, 5)
-        border = BorderFactory.createTitledBorder("模板详情")
+        border = BorderFactory.createTitledBorder(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.detail.title"))
         
-        val placeholder = JLabel("选择一个模板查看详情")
+        val placeholder = JLabel(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.detail.placeholder"))
         placeholder.horizontalAlignment = SwingConstants.CENTER
         placeholder.foreground = Color.GRAY
         add(placeholder, BorderLayout.CENTER)
@@ -40,11 +40,11 @@ class TemplateDetailPanel(
         layout = BorderLayout(5, 5)
         
         val categoryStr = when (template.category) {
-            TemplateCategory.IDENTITY -> "身份认证"
-            TemplateCategory.NETWORK -> "网络相关"
-            TemplateCategory.TEXT -> "文本处理"
-            TemplateCategory.SECURITY -> "密码安全"
-            TemplateCategory.DEVELOPMENT -> "开发相关"
+            TemplateCategory.IDENTITY -> com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.identity")
+            TemplateCategory.NETWORK -> com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.network")
+            TemplateCategory.TEXT -> com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.text")
+            TemplateCategory.SECURITY -> com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.security")
+            TemplateCategory.DEVELOPMENT -> com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.development")
         }
         
         val infoPanel = JPanel()
@@ -56,29 +56,35 @@ class TemplateDetailPanel(
         infoPanel.add(nameLabel)
         infoPanel.add(Box.createVerticalStrut(5))
         
-        categoryLabel.text = "分类: $categoryStr"
+        categoryLabel.text = com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.label", categoryStr)
         categoryLabel.alignmentX = Component.LEFT_ALIGNMENT
         categoryLabel.foreground = Color.GRAY
         infoPanel.add(categoryLabel)
         infoPanel.add(Box.createVerticalStrut(10))
         
-        descriptionLabel.text = "<html><b>说明:</b><br/>${template.description}</html>"
+        descriptionLabel.text = "<html><b>${com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.description.label")}</b><br/>${template.description}</html>"
         descriptionLabel.alignmentX = Component.LEFT_ALIGNMENT
         infoPanel.add(descriptionLabel)
         infoPanel.add(Box.createVerticalStrut(10))
         
-        patternLabel.text = "<html><b>正则表达式:</b><br/><code>${escapeHtml(template.pattern)}</code></html>"
+        patternLabel.text = "<html><b>${com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.pattern.label")}</b><br/><code>${escapeHtml(template.pattern)}</code></html>"
         patternLabel.alignmentX = Component.LEFT_ALIGNMENT
         infoPanel.add(patternLabel)
         infoPanel.add(Box.createVerticalStrut(10))
         
-        exampleLabel.text = "<html><b>示例:</b> <code>${escapeHtml(template.example)}</code></html>"
+        exampleLabel.text = "<html><b>${com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.example.label")}</b> <code>${escapeHtml(template.example)}</code></html>"
         exampleLabel.alignmentX = Component.LEFT_ALIGNMENT
         infoPanel.add(exampleLabel)
         
         val buttonPanel = JPanel(FlowLayout(FlowLayout.LEFT))
+
+        // Avoid stacking listeners when the same panel is re-rendered for multiple templates.
+        useButton.actionListeners.forEach { useButton.removeActionListener(it) }
+        copyButton.actionListeners.forEach { copyButton.removeActionListener(it) }
+
         useButton.addActionListener { onUseTemplate(template) }
         copyButton.addActionListener { copyPattern(template.pattern) }
+
         buttonPanel.add(useButton)
         buttonPanel.add(copyButton)
         
@@ -104,11 +110,17 @@ class TemplateDetailPanel(
         val selection = java.awt.datatransfer.StringSelection(pattern)
         clipboard.setContents(selection, selection)
         
-        JOptionPane.showMessageDialog(
-            this,
-            "正则表达式已复制到剪贴板",
-            "复制成功",
-            JOptionPane.INFORMATION_MESSAGE
+        val title = com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("copy.success.title")
+        val content = com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("copy.success.content")
+
+        // Use IDE notification instead of modal dialog to avoid repeated popups.
+        com.intellij.notification.Notifications.Bus.notify(
+            com.intellij.notification.Notification(
+                "YouRegexInterpreter",
+                title,
+                content,
+                com.intellij.notification.NotificationType.INFORMATION
+            )
         )
     }
 }

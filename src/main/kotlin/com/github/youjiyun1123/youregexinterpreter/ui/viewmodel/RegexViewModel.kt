@@ -5,6 +5,8 @@ import com.github.youjiyun1123.youregexinterpreter.core.PerformanceMonitor
 import com.github.youjiyun1123.youregexinterpreter.core.PerformanceStatus
 import com.github.youjiyun1123.youregexinterpreter.core.InputValidator
 import com.github.youjiyun1123.youregexinterpreter.core.ResultLimiter
+import com.github.youjiyun1123.youregexinterpreter.core.generator.GenerationResult
+import com.github.youjiyun1123.youregexinterpreter.core.generator.TestStringGenerator
 import com.github.youjiyun1123.youregexinterpreter.core.interpreter.NaturalLanguageInterpreter
 import com.github.youjiyun1123.youregexinterpreter.core.interpreter.StructureAnalyzer
 import com.github.youjiyun1123.youregexinterpreter.core.model.MatchResult
@@ -25,6 +27,7 @@ class RegexViewModel {
     private val engine = JavaRegexEngine()
     private val interpreter = NaturalLanguageInterpreter()
     private val performanceMonitor = PerformanceMonitor()
+    private val testStringGenerator = TestStringGenerator()
     
     // State
     var pattern: String = ""
@@ -225,6 +228,27 @@ class RegexViewModel {
     fun dispose() {
         debounceTimer?.cancel()
         listeners.clear()
+    }
+    
+    /**
+     * 生成符合当前正则表达式的测试字符串
+     * @return 生成结果，成功时包含测试字符串，失败时包含错误信息
+     */
+    fun generateTestString(): GenerationResult {
+        if (pattern.isEmpty()) {
+            return GenerationResult.Failure("请先输入正则表达式")
+        }
+        
+        // 先验证正则表达式是否有效
+        val errors = RegexParserFacade.validate(pattern)
+        if (errors.isNotEmpty()) {
+            return GenerationResult.Failure(
+                message = "正则表达式错误: ${errors.first().message}",
+                position = errors.first().position
+            )
+        }
+        
+        return testStringGenerator.generate(pattern)
     }
 }
 

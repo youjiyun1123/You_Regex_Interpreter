@@ -6,10 +6,6 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
-import com.github.youjiyun1123.youregexinterpreter.core.parser.RegexParserFacade
-import com.github.youjiyun1123.youregexinterpreter.core.interpreter.NaturalLanguageInterpreter
-import com.github.youjiyun1123.youregexinterpreter.engine.JavaRegexEngine
-
 /**
  * 分析选中正则表达式的 Action
  */
@@ -30,21 +26,11 @@ class AnalyzeRegexAction : AnAction() {
             return
         }
         
-        // 解析正则表达式
-        val parseResult = RegexParserFacade.parse(selectedText)
-        
-        if (parseResult.isSuccess && parseResult.syntaxTree != null) {
-            // 生成解释
-            val interpreter = NaturalLanguageInterpreter()
-            val explanation = interpreter.interpret(parseResult.syntaxTree)
-            
-            // 显示在工具窗口
-            showExplanation(project, explanation, selectedText)
-        } else {
-            // 显示错误
-            val errors = parseResult.errors.joinToString("\n") { it.message }
-            showError(project, errors, selectedText)
-        }
+        // Show tool window and fill the pattern from selection.
+        val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("RegexToolWindow")
+        toolWindow?.show()
+
+        com.github.youjiyun1123.youregexinterpreter.ui.RegexToolWindowFactory.getInstance()?.setPattern(selectedText)
     }
     
     private fun showExplanation(project: Project, explanation: String, pattern: String) {
