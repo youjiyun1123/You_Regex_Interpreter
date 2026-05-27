@@ -5,13 +5,30 @@ plugins {
     id("org.jetbrains.intellij.platform")
     id("org.jetbrains.changelog")
 }
-
+repositories{
+    mavenCentral()
+    maven("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
+    intellijPlatform {
+        defaultRepositories()
+    }
+}
 dependencies {
     testImplementation("junit:junit:4.13.2")
-
-    // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+    testImplementation("org.assertj:assertj-core:3.25.0")
+    
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    
     intellijPlatform {
         intellijIdea("2025.2.6.2")
         testFramework(TestFrameworkType.Platform)
     }
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+
+kotlin {
+    jvmToolchain(21)
 }

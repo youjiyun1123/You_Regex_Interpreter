@@ -3,6 +3,12 @@ import org.jetbrains.intellij.platform.gradle.extensions.intellijPlatform
 rootProject.name = "IntelliJ Platform Plugin Template"
 
 pluginManagement {
+    repositories {
+        maven("https://maven.aliyun.com/repository/gradle-plugin")
+        maven("https://maven.aliyun.com/repository/public")
+        gradlePluginPortal()
+        mavenCentral()
+    }
     plugins {
         id("org.jetbrains.kotlin.jvm") version "2.1.20"
         id("org.jetbrains.changelog") version "2.5.0"
@@ -18,7 +24,10 @@ plugins {
 dependencyResolutionManagement {
     // Configure all projects' repositories
     repositories {
+        maven("https://maven.aliyun.com/repository/public")
+
         mavenCentral()
+
 
         // IntelliJ Platform Gradle Plugin Repositories Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-repositories-extension.html
         intellijPlatform {
