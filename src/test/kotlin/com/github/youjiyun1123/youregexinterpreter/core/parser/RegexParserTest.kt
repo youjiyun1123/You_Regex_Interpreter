@@ -167,7 +167,9 @@ class RegexParserTest {
         fun nonCapturingGroup() {
             val result = parse("(?:abc)")
             assertThat(result.isSuccess).isTrue()
-            assertThat((result.syntaxTree as Group).type).isEqualTo(GroupType.NON_CAPTURING)
+            assertThat(result.syntaxTree).isInstanceOf(Group::class.java)
+            val group = result.syntaxTree as Group
+            assertThat(group.type).isEqualTo(GroupType.NON_CAPTURING)
         }
         
         @Test
@@ -175,7 +177,9 @@ class RegexParserTest {
         fun positiveLookahead() {
             val result = parse("(?=abc)")
             assertThat(result.isSuccess).isTrue()
-            assertThat((result.syntaxTree as Group).type).isEqualTo(GroupType.LOOKAHEAD)
+            assertThat(result.syntaxTree).isInstanceOf(Group::class.java)
+            val group = result.syntaxTree as Group
+            assertThat(group.type).isEqualTo(GroupType.LOOKAHEAD)
         }
         
         @Test
@@ -183,7 +187,9 @@ class RegexParserTest {
         fun negativeLookahead() {
             val result = parse("(?!abc)")
             assertThat(result.isSuccess).isTrue()
-            assertThat((result.syntaxTree as Group).type).isEqualTo(GroupType.NEGATIVE_LOOKAHEAD)
+            assertThat(result.syntaxTree).isInstanceOf(Group::class.java)
+            val group = result.syntaxTree as Group
+            assertThat(group.type).isEqualTo(GroupType.NEGATIVE_LOOKAHEAD)
         }
     }
 

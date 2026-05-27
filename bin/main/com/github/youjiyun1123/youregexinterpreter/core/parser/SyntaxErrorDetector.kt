@@ -86,7 +86,20 @@ object SyntaxErrorDetector {
         val regex = Regex("""(?<![\\d\\w])([*+?])(?![*+?])""")
         regex.findAll(pattern).forEach { match ->
             val pos = match.range.first
-            if (pos == 0 || pattern[pos - 1] in "(|)") {
+            val prevChar = if (pos > 0) pattern[pos - 1] else '\u0000'
+            
+            // 跳过非捕获分组 (?: 等
+            if (prevChar == '(') {
+                return@forEach
+            }
+            
+            // 跳过前瞻/后顾断言 (?=), (?!), (?<=), (?<!)
+            if (prevChar == '<' && pos > 1 && pattern[pos - 2] == '(') {
+                return@forEach
+            }
+            
+            // 检测孤立量词
+            if (pos == 0 || prevChar in "(|)") {
                 errors.add(
                     EnhancedParseError(
                         message = "Quantifier '${match.value}' has nothing to repeat",

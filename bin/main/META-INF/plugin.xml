@@ -11,6 +11,8 @@
             <li>Syntax error detection and position marking</li>
             <li>Structured regex visualization</li>
             <li>30+ built-in regex templates</li>
+            <li>Multi-language support (Java, JavaScript, Python)</li>
+            <li>Syntax tree visualization</li>
         </ul>
     ]]></description>
 
@@ -23,10 +25,24 @@
     </extensions>
 
     <actions>
+        <!-- Open Tool Window -->
         <action id="YouRegexInterpreter.OpenToolWindow" class="com.github.youjiyun1123.youregexinterpreter.action.OpenRegexToolWindowAction"
                 text="Open Regex Interpreter" description="Open the Regex Interpreter tool window">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift R"/>
+        </action>
+        
+        <!-- Analyze Selected Regex -->
+        <action id="YouRegexInterpreter.AnalyzeSelection" class="com.github.youjiyun1123.youregexinterpreter.action.AnalyzeRegexAction"
+                text="Analyze Regex in Selection" description="Analyze the selected regex pattern">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift G"/>
+        </action>
+        
+        <!-- Analyze from Clipboard -->
+        <action id="YouRegexInterpreter.AnalyzeClipboard" class="com.github.youjiyun1123.youregexinterpreter.action.AnalyzeFromClipboardAction"
+                text="Analyze Regex from Clipboard" description="Analyze regex from clipboard content">
+            <add-to-group group-id="EditMenu" anchor="last"/>
         </action>
     </actions>
 </idea-plugin>

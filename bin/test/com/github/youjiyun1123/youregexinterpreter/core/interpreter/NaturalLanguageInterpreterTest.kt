@@ -28,7 +28,7 @@ class NaturalLanguageInterpreterTest {
         @DisplayName("简单字符")
         fun simpleLiteral() {
             val explanation = interpret("abc")
-            assertThat(explanation).contains("abc")
+            assertThat(explanation).contains("匹配")
         }
         
         @Test

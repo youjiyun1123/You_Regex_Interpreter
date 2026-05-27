@@ -35,6 +35,7 @@ class Lexer(private val input: String) {
             '*' -> Token(TokenType.QUANTIFIER_STAR, "*")
             '+' -> Token(TokenType.QUANTIFIER_PLUS, "+")
             '?' -> Token(TokenType.QUANTIFIER_QUESTION, "?")
+            ')' -> Token(TokenType.GROUP_CLOSE, ")")
             '(' -> parseGroupStart()
             '[' -> parseCharClass()
             '\\' -> parseEscape()
@@ -49,10 +50,10 @@ class Lexer(private val input: String) {
         if (pos >= input.length || input[pos] != '?') {
             return Token(TokenType.GROUP_OPEN, "(")
         }
-        pos++
+        pos++ // consume '?'
         
         return when {
-            pos >= input.length -> Token(TokenType.GROUP_QUESTION, "(?")
+            pos >= input.length -> Token(TokenType.GROUP_NON_CAPTURING, "(?:")
             input[pos] == ':' -> { pos++; Token(TokenType.GROUP_NON_CAPTURING, "(?:") }
             input[pos] == '=' -> { pos++; Token(TokenType.GROUP_LOOKAHEAD, "(?=") }
             input[pos] == '!' -> { pos++; Token(TokenType.GROUP_NEG_LOOKAHEAD, "(?!") }
@@ -65,7 +66,7 @@ class Lexer(private val input: String) {
                     else -> Token(TokenType.GROUP_NAMED_START, "(?<")
                 }
             }
-            else -> Token(TokenType.GROUP_QUESTION, "(?")
+            else -> Token(TokenType.GROUP_NON_CAPTURING, "(?:")
         }
     }
     
