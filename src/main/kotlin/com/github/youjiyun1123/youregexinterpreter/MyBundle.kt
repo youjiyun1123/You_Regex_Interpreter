@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.template
+package com.github.youjiyun1123.youregexinterpreter
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.NonNls
