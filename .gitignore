@@ -4,3 +4,9 @@
 .intellijPlatform
 .kotlin
 build
+bin/
+
+# Documentation
+CONTEXT.md
+docs/
+prd/
