@@ -24,6 +24,7 @@
   "template.category.identity": "Identity",
   "template.category.network": "Network",
   "template.category.text": "Text",
+  "template.category.numeric": "Numeric",
   "template.category.security": "Security",
   "template.category.development": "Development",
   

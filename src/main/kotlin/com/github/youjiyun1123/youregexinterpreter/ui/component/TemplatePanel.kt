@@ -132,6 +132,7 @@ class TemplateListCellRenderer : javax.swing.ListCellRenderer<RegexTemplate> {
         TemplateCategory.IDENTITY to com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.short.identity"),
         TemplateCategory.NETWORK to com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.short.network"),
         TemplateCategory.TEXT to com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.short.text"),
+        TemplateCategory.NUMERIC to com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.short.numeric"),
         TemplateCategory.SECURITY to com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.short.security"),
         TemplateCategory.DEVELOPMENT to com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.short.development")
     )

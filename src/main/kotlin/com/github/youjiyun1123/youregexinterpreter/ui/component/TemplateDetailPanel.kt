@@ -43,6 +43,7 @@ class TemplateDetailPanel(
             TemplateCategory.IDENTITY -> com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.identity")
             TemplateCategory.NETWORK -> com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.network")
             TemplateCategory.TEXT -> com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.text")
+            TemplateCategory.NUMERIC -> com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.numeric")
             TemplateCategory.SECURITY -> com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.security")
             TemplateCategory.DEVELOPMENT -> com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.template.category.development")
         }

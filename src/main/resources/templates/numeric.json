@@ -1,0 +1,58 @@
+[
+  {
+    "id": "integer",
+    "name": "整数",
+    "pattern": "^-?\\d+$",
+    "description": "匹配正整数或负整数",
+    "example": "-123",
+    "language": "JAVA"
+  },
+  {
+    "id": "positive-integer",
+    "name": "正整数",
+    "pattern": "^\\d+$",
+    "description": "匹配正整数（不含负号）",
+    "example": "123",
+    "language": "JAVA"
+  },
+  {
+    "id": "positive-float",
+    "name": "正浮点数",
+    "pattern": "^\\d+(\\.\\d+)?$",
+    "description": "匹配正浮点数",
+    "example": "3.14159",
+    "language": "JAVA"
+  },
+  {
+    "id": "signed-float",
+    "name": "带符号浮点数",
+    "pattern": "^-?\\d+(\\.\\d+)?$",
+    "description": "匹配带符号的浮点数",
+    "example": "-3.14",
+    "language": "JAVA"
+  },
+  {
+    "id": "percentage",
+    "name": "百分比",
+    "pattern": "^\\d+(\\.\\d+)?%$",
+    "description": "匹配百分比格式",
+    "example": "99.9%",
+    "language": "JAVA"
+  },
+  {
+    "id": "currency-yuan",
+    "name": "货币金额（元）",
+    "pattern": "^¥?\\d{1,3}(,\\d{3})*(\\.\\d{2})?$",
+    "description": "匹配人民币金额格式",
+    "example": "¥1,234.56",
+    "language": "JAVA"
+  },
+  {
+    "id": "phone-digits",
+    "name": "纯数字手机号",
+    "pattern": "^1\\d{10}$",
+    "description": "匹配纯数字 11 位手机号",
+    "example": "13812345678",
+    "language": "JAVA"
+  }
+]

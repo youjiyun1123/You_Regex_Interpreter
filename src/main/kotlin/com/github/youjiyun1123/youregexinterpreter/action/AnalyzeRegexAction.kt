@@ -6,6 +6,8 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
+import com.github.youjiyun1123.youregexinterpreter.ui.RegexToolWindowFactory
+
 /**
  * 分析选中正则表达式的 Action
  */
@@ -26,22 +28,9 @@ class AnalyzeRegexAction : AnAction() {
             return
         }
         
-        // Show tool window and fill the pattern from selection.
         val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("RegexToolWindow")
         toolWindow?.show()
 
-        com.github.youjiyun1123.youregexinterpreter.ui.RegexToolWindowFactory.getInstance()?.setPattern(selectedText)
-    }
-    
-    private fun showExplanation(project: Project, explanation: String, pattern: String) {
-        val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("RegexToolWindow")
-        toolWindow?.show()
-        
-        // 可以通过消息总线发送解释到工具窗口
-    }
-    
-    private fun showError(project: Project, errors: String, pattern: String) {
-        val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("RegexToolWindow")
-        toolWindow?.show()
+        RegexToolWindowFactory.getInstance()?.setPattern(selectedText)
     }
 }

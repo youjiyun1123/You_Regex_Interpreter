@@ -24,6 +24,7 @@
   "template.category.identity": "身份认证",
   "template.category.network": "网络相关",
   "template.category.text": "文本处理",
+  "template.category.numeric": "数字格式",
   "template.category.security": "密码安全",
   "template.category.development": "开发相关",
   

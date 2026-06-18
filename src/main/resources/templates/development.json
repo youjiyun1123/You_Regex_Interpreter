@@ -1,0 +1,82 @@
+[
+  {
+    "id": "uuid",
+    "name": "UUID",
+    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+    "description": "匹配 UUID 格式",
+    "example": "550e8400-e29b-41d4-a716-446655440000",
+    "language": "JAVA"
+  },
+  {
+    "id": "uuid-upper",
+    "name": "UUID（大写）",
+    "pattern": "^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$",
+    "description": "匹配大写 UUID 格式",
+    "example": "550E8400-E29B-41D4-A716-446655440000",
+    "language": "JAVA"
+  },
+  {
+    "id": "jwt",
+    "name": "JWT Token",
+    "pattern": "^eyJ[A-Za-z0-9-_]+\\.eyJ[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$",
+    "description": "匹配 JWT 格式",
+    "example": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U",
+    "language": "JAVA"
+  },
+  {
+    "id": "java-package",
+    "name": "Java 包名",
+    "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$",
+    "description": "匹配 Java 包名格式",
+    "example": "com.example.project",
+    "language": "JAVA"
+  },
+  {
+    "id": "semantic-version",
+    "name": "语义化版本号",
+    "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-zA-Z0-9]+)?$",
+    "description": "匹配 SemVer 格式版本号",
+    "example": "1.2.3-beta",
+    "language": "JAVA"
+  },
+  {
+    "id": "slug",
+    "name": "Slug",
+    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+    "description": "匹配 URL slug 格式",
+    "example": "my-blog-post",
+    "language": "JAVA"
+  },
+  {
+    "id": "class-name",
+    "name": "Java 类名",
+    "pattern": "^[A-Z][a-zA-Z0-9]+$",
+    "description": "匹配 Java 类名格式（大写开头）",
+    "example": "MyClassName",
+    "language": "JAVA"
+  },
+  {
+    "id": "variable-name",
+    "name": "变量名",
+    "pattern": "^[a-z][a-zA-Z0-9]*$",
+    "description": "匹配驼峰变量名",
+    "example": "myVariableName",
+    "language": "JAVA"
+  },
+  {
+    "id": "method-name",
+    "name": "方法名",
+    "pattern": "^[a-z][a-zA-Z0-9]*$",
+    "description": "匹配 Java 方法名（小写开头驼峰）",
+    "example": "getName",
+    "language": "JAVA"
+  },
+  {
+    "id": "hex-string",
+    "name": "十六进制字符串",
+    "pattern": "^[0-9a-fA-F]+$",
+    "description": "匹配十六进制字符序列",
+    "example": "deadbeef",
+    "language": "JAVA"
+  }
+]

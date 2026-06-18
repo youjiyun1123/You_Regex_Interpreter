@@ -1,0 +1,66 @@
+[
+  {
+    "id": "chinese",
+    "name": "中文字符",
+    "pattern": "[\\u4e00-\\u9fff]",
+    "description": "匹配单个中文字符",
+    "example": "中",
+    "language": "JAVA"
+  },
+  {
+    "id": "chinese-text",
+    "name": "中文字符串",
+    "pattern": "[\\u4e00-\\u9fff]+",
+    "description": "匹配一个或多个连续中文字符",
+    "example": "你好世界",
+    "language": "JAVA"
+  },
+  {
+    "id": "date-iso",
+    "name": "日期 (YYYY-MM-DD)",
+    "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$",
+    "description": "匹配 ISO 格式日期",
+    "example": "2024-05-15",
+    "language": "JAVA"
+  },
+  {
+    "id": "date-cn",
+    "name": "日期 (YYYY/MM/DD)",
+    "pattern": "^\\d{4}/(0[1-9]|1[0-2])/(0[1-9]|[12]\\d|3[01])$",
+    "description": "匹配中文格式日期",
+    "example": "2024/05/15",
+    "language": "JAVA"
+  },
+  {
+    "id": "time-24h",
+    "name": "时间 (HH:mm:ss)",
+    "pattern": "^([01]\\d|2[0-3]):([0-5]\\d):([0-5]\\d)$",
+    "description": "匹配 24 小时制时间",
+    "example": "14:30:00",
+    "language": "JAVA"
+  },
+  {
+    "id": "hex-color",
+    "name": "十六进制颜色",
+    "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$",
+    "description": "匹配 CSS 十六进制颜色代码",
+    "example": "#FF5733",
+    "language": "JAVA"
+  },
+  {
+    "id": "html-tag",
+    "name": "HTML 标签",
+    "pattern": "<([a-z]+)([^<]+)*(?:>(.*)<\\/\\1>|\\s+\\/>)",
+    "description": "匹配 HTML 标签及其内容",
+    "example": "<div>content</div>",
+    "language": "JAVA"
+  },
+  {
+    "id": "whitespace",
+    "name": "空白字符",
+    "pattern": "\\s+",
+    "description": "匹配一个或多个空白字符（空格、制表符、换行等）",
+    "example": "   ",
+    "language": "JAVA"
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "strong-password",
+    "name": "强密码",
+    "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+    "description": "至少8位，含大小写字母、数字和特殊字符",
+    "example": "Pass@word1",
+    "language": "JAVA"
+  },
+  {
+    "id": "medium-password",
+    "name": "中等密码",
+    "pattern": "^(?=.*[a-zA-Z])(?=.*\\d)[A-Za-z\\d]{6,}$",
+    "description": "至少6位，含字母和数字",
+    "example": "Pass123",
+    "language": "JAVA"
+  },
+  {
+    "id": "weak-password",
+    "name": "弱密码",
+    "pattern": "^[a-zA-Z0-9]{4,}$",
+    "description": "仅含字母和数字，至少4位",
+    "example": "pass",
+    "language": "JAVA"
+  }
+]
