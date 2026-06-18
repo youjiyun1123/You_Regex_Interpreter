@@ -257,7 +257,13 @@ class RegexViewModel {
  */
 sealed class ViewState {
     object Empty : ViewState()
-    data class Error(val errors: List<EnhancedParseError>) : ViewState()
+    data class Error(
+        val errors: List<EnhancedParseError>,
+        // Exposed for UI: when the regex is invalid we explicitly surface an empty
+        // matches list so renderers cannot accidentally fall back to stale state.
+        val matches: List<MatchResult> = emptyList(),
+        val warnings: List<String> = emptyList()
+    ) : ViewState()
     data class Success(
         val explanation: String,
         val structure: String,

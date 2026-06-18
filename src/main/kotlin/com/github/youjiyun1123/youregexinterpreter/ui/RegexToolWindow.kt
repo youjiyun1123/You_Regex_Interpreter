@@ -284,53 +284,28 @@ class RegexToolWindow(
                 
                 is ViewState.Error -> {
                     val firstError = state.errors.first()
+                    errorLabel.foreground = Color.RED
                     errorLabel.text = com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.error.prefix", firstError.message)
-                    
+
                     val errorDetails = state.errors.joinToString("\n\n") { error ->
                         SyntaxErrorDetector.formatError(error, regexInput.text)
                     }
                     errorDetailArea.text = errorDetails
-                    
+
                     explanationArea.text = ""
+                    // Error → clear matches explicitly. Do NOT render the "no matches"
+                    // hint here, since the regex itself is invalid — show empty pane.
                     matchResultArea.text = ""
                 }
                 
                 is ViewState.Success -> {
                     errorLabel.text = ""
                     errorDetailArea.text = ""
-                    
+
                     explanationArea.text = "<html><body><pre>${state.explanation}</pre></body></html>"
-                    
-                    matchResultArea.text = if (state.matches.isEmpty()) {
-                        com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.matches.none")
-                    } else {
-                        buildString {
-                            appendLine(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.matches.found", state.matches.size))
-                            appendLine()
-                            state.matches.take(1000).forEachIndexed { index, match ->
-                                appendLine(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message(
-                                    "ui.match.item",
-                                    index + 1,
-                                    match.value,
-                                    match.range.start,
-                                    match.range.endInclusive
-                                ))
-                                if (match.groups.size > 1) {
-                                    match.groups.drop(1).forEach { group ->
-                                        val nameStr = if (group.name != null) " (${group.name})" else ""
-                                        appendLine(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message(
-                                            "ui.match.group.item",
-                                            group.index,
-                                            nameStr,
-                                            group.value ?: "null"
-                                        ))
-                                    }
-                                }
-                                appendLine()
-                            }
-                        }
-                    }
-                    
+
+                    matchResultArea.text = renderMatches(state.matches, state.warnings)
+
                     if (state.warnings.isNotEmpty()) {
                         errorLabel.text = com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.warning.prefix", state.warnings.first())
                         errorLabel.foreground = Color.ORANGE
@@ -339,6 +314,43 @@ class RegexToolWindow(
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Renders the match list as a single string. Centralised so both Success
+     * and Error states produce consistent output (Error always passes empty matches).
+     */
+    private fun renderMatches(matches: List<com.github.youjiyun1123.youregexinterpreter.core.model.MatchResult>, warnings: List<String>): String {
+        if (matches.isEmpty()) {
+            return com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.matches.none")
+        }
+        return buildString {
+            appendLine(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message("ui.matches.found", matches.size))
+            appendLine()
+            matches.take(1000).forEachIndexed { index, match ->
+                appendLine(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message(
+                    "ui.match.item",
+                    index + 1,
+                    match.value,
+                    match.range.start,
+                    match.range.endInclusive
+                ))
+                if (match.groups.size > 1) {
+                    match.groups.drop(1).forEach { group ->
+                        val nameStr = if (group.name != null) " (${group.name})" else ""
+                        appendLine(com.github.youjiyun1123.youregexinterpreter.YouRegexBundle.message(
+                            "ui.match.group.item",
+                            group.index,
+                            nameStr,
+                            group.value ?: "null"
+                        ))
+                    }
+                }
+                appendLine()
+            }
+            // Warnings are surfaced via errorLabel, not duplicated here.
+            @Suppress("UNUSED_PARAMETER") warnings
         }
     }
     

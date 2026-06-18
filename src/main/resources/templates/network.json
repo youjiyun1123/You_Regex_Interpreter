@@ -2,7 +2,7 @@
   {
     "id": "url",
     "name": "URL 地址",
-    "pattern": "^https?://[^\\s/$.?#].[^\s]*$",
+    "pattern": "^https?://[^\\s/$.?#].[^\\s]*$",
     "description": "匹配 HTTP/HTTPS URL 地址",
     "example": "https://www.example.com",
     "language": "JAVA"
